@@ -1,33 +1,27 @@
-### Pick Pack Experiment 
+# Pick & Pack Experiment
 
-Dashboard
+An isolated Frappe v15 app experiment with a Vue 3 + Tailwind CSS frontend.
 
-### Installation
+## Architecture
+- Frappe Desk Page is the authenticated entry point.
+- Vue 3 renders the Pick & Pack interface.
+- Tailwind CSS 3 styles the frontend.
+- Vite builds the frontend into the Frappe app's `public/dist` directory.
+- Frontend npm dependencies are isolated in `frontend/`.
 
-You can install this app using the [bench](https://github.com/frappe/bench) CLI:
-
+## Frontend
 ```bash
-cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch develop
-bench install-app pick_pack_experiment
+cd frontend
+npm install
+npm run build
 ```
 
-### Contributing
-
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
-
+Then, from the bench root:
 ```bash
-cd apps/pick_pack_experiment
-pre-commit install
+bench --site mysite.localhost clear-cache
+bench --site mysite.localhost migrate
 ```
 
-Pre-commit is configured to use the following tools for checking and formatting your code:
+Open the Desk Page at `/app/pick-pack-experiment`.
 
-- ruff
-- eslint
-- prettier
-- pyupgrade
-
-### License
-
-mit
+The dashboard currently uses sample data only; ERPNext API integration is a later step.
