@@ -6,17 +6,15 @@ const here = (path) => fileURLToPath(new URL(path, import.meta.url));
 
 export default defineConfig({
   plugins: [vue()],
+  base: "/assets/pick_pack_experiment/dist/",
   build: {
     outDir: here("../pick_pack_experiment/public/dist/"),
     emptyOutDir: true,
+    manifest: true,
     cssCodeSplit: false,
-    lib: {
-      entry: here("./src/main.js"),
-      name: "PickPack",
-      formats: ["iife"],
-      fileName: () => "pick-pack.js",
-      cssFileName: "pick-pack"
+    assetsDir: "assets",
+    rollupOptions: {
+      input: here("./src/main.js"),
     },
-    rollupOptions: { output: { inlineDynamicImports: true } }
-  }
+  },
 });
