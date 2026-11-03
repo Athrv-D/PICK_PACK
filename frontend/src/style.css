@@ -156,3 +156,51 @@ button { cursor: pointer; }
 @media (max-width: 1050px) {
   .pp-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ERPNext-native sizing and navigation refinements */
+.pp-shell { background:#f7f7f7; }
+.pp-sidebar { background:#fff4b8; border-right:1px solid #eee7c4; }
+.pp-brand-mark { width:38px;height:38px;font-size:21px;border-radius:8px; }
+.pp-brand strong { font-size:14px; }
+.pp-brand small { font-size:11px; }
+.pp-workspace-label { font-size:10px; letter-spacing:.8px; }
+.pp-nav-item { font-size:13px; padding:11px 10px; gap:12px; border-radius:5px; }
+.pp-nav-icon { width:19px; font-size:18px; }
+.pp-nav-item.active { background:#f4dc24; color:#28260f; }
+.pp-topbar { height:54px; padding:0 26px; background:#fff; }
+.pp-breadcrumb { font-size:13px; color:#707981; }
+.pp-breadcrumb strong { font-weight:600; color:#303840; }
+.pp-top-actions { gap:17px; }
+.pp-icon-button { font-size:20px; width:30px; height:30px; }
+.pp-top-avatar { width:32px;height:32px;font-size:11px; }
+.pp-content { padding:25px 26px 20px; }
+.pp-page-heading h1 { font-size:20px; line-height:1.35; font-weight:600; }
+.pp-page-heading p { font-size:12px; }
+.pp-eyebrow { font-size:10px; letter-spacing:1px; }
+.pp-button { font-size:12px; padding:9px 13px; }
+.pp-kpi-card { min-height:108px; padding:14px 16px; }
+.pp-kpi-top { font-size:12px; }
+.pp-kpi-icon { width:30px;height:30px;font-size:18px; }
+.pp-kpi-value { font-size:23px; margin-top:12px; }
+.pp-kpi-foot { font-size:10px; }
+.pp-panel-heading h2 { font-size:13px; }
+.pp-panel-heading p { font-size:10px; }
+.pp-select { font-size:10px; }
+.pp-chart-column small,.pp-product-column small { font-size:9px; }
+.pp-legend { font-size:9px; }
+.pp-table { font-size:11px; }
+.pp-table thead { font-size:9px; }
+.pp-table th { padding:12px 17px; }
+.pp-table td { padding:12px 17px; }
+.pp-table td strong { font-size:11px; }
+.pp-table td small { font-size:9px; }
+.pp-status-pill { font-size:9px; }
+@media(max-width:1050px) {
+  .pp-content { padding:22px 18px; }
+}
+@media(max-width:760px) {
+  .pp-content { padding:18px 12px; }
+  .pp-topbar { padding:0 13px; }
+  .pp-nav-item { font-size:0; }
+  .pp-nav-icon { font-size:18px; }
+}
