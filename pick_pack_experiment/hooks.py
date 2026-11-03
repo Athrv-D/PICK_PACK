@@ -1,5 +1,5 @@
 app_name = "pick_pack_experiment"
-app_title = "Pick Pack Experiment "
+app_title = "Pick Pack Experiment"
 app_publisher = "kcs"
 app_description = "Dashboard"
 app_email = "a.gupta@katalystcs.com.au"
@@ -15,7 +15,7 @@ app_license = "mit"
 # 	{
 # 		"name": "pick_pack_experiment",
 # 		"logo": "/assets/pick_pack_experiment/logo.png",
-# 		"title": "Pick Pack Experiment ",
+# 		 "title": "Pick Pack Experiment",
 # 		"route": "/pick_pack_experiment",
 # 		"has_permission": "pick_pack_experiment.api.permission.has_app_permission"
 # 	}
