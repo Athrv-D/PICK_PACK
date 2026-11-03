@@ -129,3 +129,30 @@ button { cursor: pointer; }
 @media (max-width: 1050px) { .pp-sidebar { width:190px; flex-basis:190px; }.pp-content { padding:23px 20px; }.pp-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width: 760px) { .pp-sidebar { width:58px; flex-basis:58px; padding:18px 7px; }.pp-brand { padding:0 4px 25px; }.pp-brand>div:last-child,.pp-workspace-label,.pp-nav-item:not(.active),.pp-nav-item { font-size:0; }.pp-nav-item { justify-content:center; padding:12px 4px; }.pp-nav-icon { font-size:16px; }.pp-sidebar-bottom { display:none; }.pp-content { padding:18px 12px; }.pp-topbar { padding:0 13px; }.pp-page-heading { align-items:flex-start; flex-direction:column; }.pp-heading-actions { width:100%; }.pp-analytics-grid { grid-template-columns:1fr; }.pp-table-heading { align-items:flex-start; flex-direction:column; }.pp-table-actions { width:100%; flex-wrap:wrap; }.pp-table-actions input { flex:1; min-width:130px; } }
 @media (max-width: 480px) { .pp-kpis { grid-template-columns:1fr 1fr; gap:8px; }.pp-kpi-card { padding:12px; }.pp-kpi-value { font-size:22px; }.pp-button { padding:8px 9px; }.pp-heading-actions { flex-wrap:wrap; } }
+
+/* Compact ERPNext-style typography and uniform four-card KPI sizing */
+.pp-content { font-size: 11px; }
+.pp-page-heading h1 { font-size: 20px; line-height: 1.3; }
+.pp-page-heading p { font-size: 10px; }
+.pp-eyebrow { font-size: 8px; }
+.pp-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pp-kpi-card {
+  min-width: 0;
+  min-height: 104px;
+  padding: 13px 15px 11px;
+}
+.pp-kpi-top { font-size: 10px; }
+.pp-kpi-value { font-size: 21px; line-height: 1.15; margin-top: 11px; }
+.pp-kpi-foot { font-size: 8px; }
+.pp-panel-heading h2 { font-size: 11px; }
+.pp-panel-heading p { font-size: 8px; }
+.pp-table { font-size: 9px; }
+.pp-table thead { font-size: 7px; }
+.pp-table td strong { font-size: 9px; }
+.pp-table td small { font-size: 8px; }
+.pp-status-pill { font-size: 8px; }
+.pp-button { font-size: 10px; }
+.pp-breadcrumb { font-size: 10px; }
+@media (max-width: 1050px) {
+  .pp-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
