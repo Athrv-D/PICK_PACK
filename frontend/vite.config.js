@@ -4,9 +4,24 @@ import { fileURLToPath } from "node:url";
 
 const here = (path) => fileURLToPath(new URL(path, import.meta.url));
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: "/assets/pick_pack_experiment/dist/",
+  base: command === "serve" ? "/" : "/assets/pick_pack_experiment/dist/",
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "http://mysite.localhost:8000",
+        changeOrigin: true,
+      },
+      "/assets": {
+        target: "http://mysite.localhost:8000",
+        changeOrigin: true,
+      },
+    },
+  },
   build: {
     outDir: here("../pick_pack_experiment/public/dist/"),
     emptyOutDir: true,
@@ -14,7 +29,7 @@ export default defineConfig({
     cssCodeSplit: false,
     assetsDir: "assets",
     rollupOptions: {
-      input: here("./src/main.js"),
+      input: here("./index.html"),
     },
   },
-});
+}));
