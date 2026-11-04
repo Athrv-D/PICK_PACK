@@ -9,14 +9,14 @@
 @media (min-width: 992px) {
   [data-page-route="Workspaces"]:has([chart_name="Sales Order Trends"])
     .layout-main > .layout-side-section {
-    flex: 0 0 13.5% !important;
-    max-width: 13.5% !important;
+    flex: 0 0 12% !important;
+    max-width: 12% !important;
   }
 
   [data-page-route="Workspaces"]:has([chart_name="Sales Order Trends"])
     .layout-main > .layout-main-section-wrapper {
-    flex: 0 0 86.5% !important;
-    max-width: 86.5% !important;
+    flex: 0 0 88% !important;
+    max-width: 88% !important;
   }
 }
 
@@ -24,6 +24,7 @@
 [data-page-route="Workspaces"] [chart_name="Sales Order Trends"] .dashboard-widget-box {
   border: 2px solid var(--gray-300) !important;
   border-radius: var(--border-radius-lg);
+  box-shadow: inset 0 0 0 1px var(--gray-200);
 }
 
 /* Keep the same visual weight in dark mode. */
