@@ -41,7 +41,7 @@
   min-width: 0;
   border: 1px solid var(--outline-gray-1);
   border-radius: 10px;
-  background: var(--surface-elevation-1);
+  background: var(--surface-base);
 }
 
 .pp-stat-card {
