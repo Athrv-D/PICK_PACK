@@ -12,43 +12,46 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
   $(page.main).empty().append(root);
 
   const assetBase = "/assets/pick_pack_experiment/dist";
-  const manifestUrl = `${assetBase}/.vite/manifest.json`;
+  const manifestUrl = assetBase + "/.vite/manifest.json";
 
   function mountFrontend() {
     if (typeof window.PickPack?.mount !== "function") {
       throw new Error("Pick & Pack bundle loaded, but window.PickPack.mount is unavailable.");
     }
-
     window.PickPack.mount(root);
   }
 
   async function loadFrontend() {
     const response = await fetch(manifestUrl, { cache: "no-cache" });
-
     if (!response.ok) {
-      throw new Error(`Vite manifest request failed: ${response.status}`);
+      throw new Error("Vite manifest request failed: " + response.status);
     }
 
     const manifest = await response.json();
 
-    // Vite's HTML entry is normally keyed as "index.html".
+    // An HTML entry may be named index.html. The Desk page must load the
+    // JavaScript module entry, never index.html as a script.
     const entry =
-      manifest["index.html"] ||
-      manifest["src/main.js"] ||
+      (manifest["src/main.js"]?.file?.endsWith(".js") && manifest["src/main.js"]) ||
       Object.values(manifest).find(
         (item) => item.isEntry && typeof item.file === "string" && item.file.endsWith(".js")
       );
 
     if (!entry?.file) {
       throw new Error(
-        `No JavaScript entry found in Vite manifest. Available keys: ${Object.keys(manifest).join(", ")}`
+        "No JavaScript entry found in Vite manifest. Available keys: " +
+          Object.keys(manifest).join(", ")
       );
     }
 
-    (entry.css || []).forEach((cssFile) => {
-      const href = `${assetBase}/${cssFile}`;
+    const cssFiles = new Set(entry.css || []);
+    Object.values(manifest)
+      .filter((item) => item.isEntry && Array.isArray(item.css))
+      .forEach((item) => item.css.forEach((file) => cssFiles.add(file)));
 
-      if (!document.querySelector(`link[href="${href}"]`)) {
+    cssFiles.forEach((cssFile) => {
+      const href = assetBase + "/" + cssFile;
+      if (!document.querySelector('link[href="' + href + '"]')) {
         const stylesheet = document.createElement("link");
         stylesheet.rel = "stylesheet";
         stylesheet.href = href;
@@ -56,31 +59,33 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
       }
     });
 
-    const scriptUrl = `${assetBase}/${entry.file}`;
+    const scriptUrl = assetBase + "/" + entry.file;
 
-    // The module may already be loaded from a previous Desk visit.
+    // A previously loaded module already exposes mount(). Reuse it for
+    // subsequent Desk navigation instead of injecting the module again.
     if (typeof window.PickPack?.mount === "function") {
       mountFrontend();
       return;
     }
 
     let script = document.querySelector(
-      `script[type="module"][src="${scriptUrl}"]`
+      'script[type="module"][src="' + scriptUrl + '"]'
     );
 
     if (!script) {
       script = document.createElement("script");
       script.type = "module";
       script.src = scriptUrl;
-      script.onload = mountFrontend;
-      script.onerror = () => {
-        frappe.msgprint(__("Could not load the Pick & Pack frontend bundle."));
-      };
+      script.addEventListener("load", mountFrontend, { once: true });
+      script.addEventListener(
+        "error",
+        () => frappe.msgprint(__("Could not load the Pick & Pack frontend bundle.")),
+        { once: true }
+      );
       document.body.appendChild(script);
       return;
     }
 
-    // If the script element exists but is still loading, wait for its module code.
     script.addEventListener("load", mountFrontend, { once: true });
     script.addEventListener(
       "error",
