@@ -1,5 +1,9 @@
 import { createApp } from "vue";
 import App from "./App.vue";
+
+// Import Frappe UI's design system stylesheet as an explicit JS dependency.
+// Vite then records it on the JS entry in the production manifest.
+import "frappe-ui/style.css";
 import "./style.css";
 
 function mountPickPack(target) {
@@ -7,7 +11,6 @@ function mountPickPack(target) {
     throw new Error("Pick & Pack mount target was not found.");
   }
 
-  // Avoid mounting twice when the page loader and entry script both initialize.
   if (target.__pickPackApp) {
     return target.__pickPackApp;
   }
@@ -18,11 +21,9 @@ function mountPickPack(target) {
   return app;
 }
 
-// Expose a mount function so Frappe can mount the app again after Desk navigation.
 window.PickPack = window.PickPack || {};
 window.PickPack.mount = mountPickPack;
 
-// Also support opening the Vite entry directly in a browser during development.
 const mountTarget = document.getElementById("pick-pack-vue-root");
 if (mountTarget) {
   mountPickPack(mountTarget);
