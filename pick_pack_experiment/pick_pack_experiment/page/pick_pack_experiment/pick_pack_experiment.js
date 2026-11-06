@@ -14,6 +14,14 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
   const assetBase = "/assets/pick_pack_experiment/dist";
   const manifestUrl = `${assetBase}/.vite/manifest.json`;
 
+  function mountFrontend() {
+    if (typeof window.PickPack?.mount !== "function") {
+      throw new Error("Pick & Pack bundle loaded, but window.PickPack.mount is unavailable.");
+    }
+
+    window.PickPack.mount(root);
+  }
+
   async function loadFrontend() {
     const response = await fetch(manifestUrl, { cache: "no-cache" });
 
@@ -23,8 +31,7 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
 
     const manifest = await response.json();
 
-    // Vite uses "index.html" as the entry key when the build input is index.html.
-    // Keep the other lookups as fallbacks for alternate Vite configurations.
+    // Vite's HTML entry is normally keyed as "index.html".
     const entry =
       manifest["index.html"] ||
       manifest["src/main.js"] ||
@@ -50,19 +57,36 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
     });
 
     const scriptUrl = `${assetBase}/${entry.file}`;
-    const existingScript = document.querySelector(
+
+    // The module may already be loaded from a previous Desk visit.
+    if (typeof window.PickPack?.mount === "function") {
+      mountFrontend();
+      return;
+    }
+
+    let script = document.querySelector(
       `script[type="module"][src="${scriptUrl}"]`
     );
 
-    if (!existingScript) {
-      const script = document.createElement("script");
+    if (!script) {
+      script = document.createElement("script");
       script.type = "module";
       script.src = scriptUrl;
+      script.onload = mountFrontend;
       script.onerror = () => {
         frappe.msgprint(__("Could not load the Pick & Pack frontend bundle."));
       };
       document.body.appendChild(script);
+      return;
     }
+
+    // If the script element exists but is still loading, wait for its module code.
+    script.addEventListener("load", mountFrontend, { once: true });
+    script.addEventListener(
+      "error",
+      () => frappe.msgprint(__("Could not load the Pick & Pack frontend bundle.")),
+      { once: true }
+    );
   }
 
   loadFrontend().catch((error) => {
