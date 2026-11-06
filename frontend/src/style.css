@@ -1,3 +1,38 @@
+/* Breadcrumb hierarchy: compact Frappe UI trail above the page heading. */
+.pp-breadcrumbs {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  align-items: center;
+  margin: 0 0 18px;
+  padding: 5px 9px;
+  overflow: hidden;
+  border: 1px solid var(--outline-gray-1);
+  border-radius: 8px;
+  background: var(--surface-gray-1);
+}
+
+.pp-breadcrumbs > div {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pp-breadcrumb-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  margin-right: 6px;
+  opacity: 0.85;
+}
+
+@media (max-width: 700px) {
+  .pp-breadcrumbs {
+    margin-bottom: 14px;
+    padding: 4px 7px;
+  }
+}
+
 /* Layout-only rules for the embedded Pick & Pack page.
    Frappe UI owns buttons, inputs, typography, theme tokens and chart styling. */
 #pick-pack-vue-root {
