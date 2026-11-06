@@ -1,7 +1,25 @@
 <template>
   <div class="pick-pack-page">
-    <nav aria-label="Breadcrumb" class="mb-3">
-      <Breadcrumbs :items="breadcrumbs" />
+    <nav aria-label="Breadcrumb" class="pp-breadcrumbs">
+      <Breadcrumbs :items="breadcrumbs">
+        <template #prefix="{ item }">
+          <span
+            v-if="item.icon === 'workspace'"
+            class="lucide-house pp-breadcrumb-icon"
+            aria-hidden="true"
+          />
+          <span
+            v-else-if="item.icon === 'warehouse'"
+            class="lucide-box pp-breadcrumb-icon"
+            aria-hidden="true"
+          />
+          <span
+            v-else-if="item.icon === 'dashboard'"
+            class="lucide-layout-dashboard pp-breadcrumb-icon"
+            aria-hidden="true"
+          />
+        </template>
+      </Breadcrumbs>
     </nav>
 
     <header class="pp-page-heading">
@@ -229,8 +247,20 @@ import { Breadcrumbs, Button, Select, TextInput } from "frappe-ui";
 import { BarChart, DonutChart } from "frappe-ui/charts";
 
 const breadcrumbs = [
-  { label: "Pick & Pack" },
-  { label: "Dashboard" },
+  {
+    label: "Workspace",
+    href: "/app",
+    icon: "workspace",
+  },
+  {
+    label: "Pick & Pack",
+    href: "/desk/pick-pack-experiment/pick_pack_experiment",
+    icon: "warehouse",
+  },
+  {
+    label: "Dashboard",
+    icon: "dashboard",
+  },
 ];
 
 const search = ref("");
