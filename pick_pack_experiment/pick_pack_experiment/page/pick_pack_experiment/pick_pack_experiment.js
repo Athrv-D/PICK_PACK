@@ -14,6 +14,42 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
   const assetBase = "/assets/pick_pack_experiment/dist";
   const manifestUrl = assetBase + "/.vite/manifest.json";
 
+  function assetUrl(file) {
+    if (/^https?:\/\//i.test(file) || file.startsWith("/assets/")) {
+      return file;
+    }
+    return assetBase + "/" + file.replace(/^\/+/, "");
+  }
+
+  function loadStylesheet(file) {
+    const href = assetUrl(file);
+    let link = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(
+      (node) => node.href === new URL(href, window.location.origin).href
+    );
+
+    if (link?.sheet) return Promise.resolve();
+
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = href;
+      link.dataset.pickPackAsset = file;
+      document.head.appendChild(link);
+    }
+
+    return new Promise((resolve, reject) => {
+      link.addEventListener("load", resolve, { once: true });
+      link.addEventListener(
+        "error",
+        () => reject(new Error("Stylesheet failed to load: " + href)),
+        { once: true }
+      );
+      // A stylesheet already cached by the browser may have completed between
+      // the sheet check above and listener registration.
+      if (link.sheet) resolve();
+    });
+  }
+
   function mountFrontend() {
     if (typeof window.PickPack?.mount !== "function") {
       throw new Error("Pick & Pack bundle loaded, but window.PickPack.mount is unavailable.");
@@ -28,14 +64,17 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
     }
 
     const manifest = await response.json();
+    const entries = Object.entries(manifest);
 
-    // An HTML entry may be named index.html. The Desk page must load the
-    // JavaScript module entry, never index.html as a script.
     const entry =
-      (manifest["src/main.js"]?.file?.endsWith(".js") && manifest["src/main.js"]) ||
-      Object.values(manifest).find(
-        (item) => item.isEntry && typeof item.file === "string" && item.file.endsWith(".js")
-      );
+      manifest["src/main.js"]?.file?.endsWith(".js")
+        ? manifest["src/main.js"]
+        : entries.find(
+            ([key, item]) =>
+              item.isEntry &&
+              typeof item.file === "string" &&
+              item.file.endsWith(".js")
+          )?.[1];
 
     if (!entry?.file) {
       throw new Error(
@@ -44,60 +83,69 @@ frappe.pages["pick_pack_experiment"].on_page_load = function (wrapper) {
       );
     }
 
-    const cssFiles = new Set(entry.css || []);
-    Object.values(manifest)
-      .filter((item) => item.isEntry && Array.isArray(item.css))
-      .forEach((item) => item.css.forEach((file) => cssFiles.add(file)));
-
-    cssFiles.forEach((cssFile) => {
-      const href = assetBase + "/" + cssFile;
-      if (!document.querySelector('link[href="' + href + '"]')) {
-        const stylesheet = document.createElement("link");
-        stylesheet.rel = "stylesheet";
-        stylesheet.href = href;
-        document.head.appendChild(stylesheet);
+    // Collect CSS from every manifest record, not only the selected JS entry.
+    // This covers CSS extracted from imported library components and chunks.
+    const cssFiles = new Set();
+    entries.forEach(([, item]) => {
+      if (Array.isArray(item.css)) item.css.forEach((file) => cssFiles.add(file));
+      if (typeof item.file === "string" && item.file.endsWith(".css")) {
+        cssFiles.add(item.file);
       }
     });
 
-    const scriptUrl = assetBase + "/" + entry.file;
+    if (!cssFiles.size) {
+      throw new Error(
+        "No CSS files were listed in the Vite manifest. Re-run npm run build and inspect dist/.vite/manifest.json."
+      );
+    }
 
-    // A previously loaded module already exposes mount(). Reuse it for
-    // subsequent Desk navigation instead of injecting the module again.
+    await Promise.all(Array.from(cssFiles, loadStylesheet));
+
+    const scriptUrl = assetUrl(entry.file);
+
     if (typeof window.PickPack?.mount === "function") {
       mountFrontend();
       return;
     }
 
-    let script = document.querySelector(
-      'script[type="module"][src="' + scriptUrl + '"]'
+    const absoluteScriptUrl = new URL(scriptUrl, window.location.origin).href;
+    let script = Array.from(document.querySelectorAll('script[type="module"]')).find(
+      (node) => node.src === absoluteScriptUrl
     );
 
-    if (!script) {
-      script = document.createElement("script");
-      script.type = "module";
-      script.src = scriptUrl;
-      script.addEventListener("load", mountFrontend, { once: true });
-      script.addEventListener(
-        "error",
-        () => frappe.msgprint(__("Could not load the Pick & Pack frontend bundle.")),
-        { once: true }
-      );
-      document.body.appendChild(script);
+    if (window.__pickPackBundlePromise) {
+      await window.__pickPackBundlePromise;
+      mountFrontend();
       return;
     }
 
-    script.addEventListener("load", mountFrontend, { once: true });
-    script.addEventListener(
-      "error",
-      () => frappe.msgprint(__("Could not load the Pick & Pack frontend bundle.")),
-      { once: true }
-    );
+    if (script) {
+      throw new Error(
+        "Pick & Pack bundle tag already exists but the mount function is not ready. Reload the Desk page."
+      );
+    }
+
+    window.__pickPackBundlePromise = new Promise((resolve, reject) => {
+      script = document.createElement("script");
+      script.type = "module";
+      script.src = scriptUrl;
+      script.addEventListener("load", resolve, { once: true });
+      script.addEventListener(
+        "error",
+        () => reject(new Error("JavaScript bundle failed to load: " + scriptUrl)),
+        { once: true }
+      );
+      document.body.appendChild(script);
+    });
+
+    await window.__pickPackBundlePromise;
+    mountFrontend();
   }
 
   loadFrontend().catch((error) => {
     console.error("Pick & Pack frontend loading failed:", error);
     frappe.msgprint(
-      __("Could not load the Pick & Pack frontend. Check the Vite build and asset manifest.")
+      __("Could not load the Pick & Pack frontend assets. Check the browser console for details.")
     );
   });
 };
